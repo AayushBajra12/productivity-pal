@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	err := godotenv.Load("./backend/.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Shutting down application, unable to load env variables: ", err)
 	}
