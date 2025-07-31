@@ -24,7 +24,6 @@ func dbDetails() string {
 		username,
 		password,
 		dbname)
-	log.Println(psqlInfo)
 	return psqlInfo
 }
 

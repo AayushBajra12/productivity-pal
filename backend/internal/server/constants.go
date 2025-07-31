@@ -1,11 +1,11 @@
 package server
 
 const (
-	certFile = "./backend/certs/server.crt"
+	certFile = "./certs/server.crt"
 
-	keyFile = "./backend/certs/server.key"
+	keyFile = "./certs/server.key"
 
-	caCertFile = "./backend/certs/ca.crt"
+	caCertFile = "./certs/ca.crt"
 
 	addr = ":8443"
 )

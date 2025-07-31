@@ -15,7 +15,6 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - JWT_SECRET=your-jwt-secret-key
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       postgres:
         condition: service_healthy
@@ -54,6 +53,35 @@ services:
       retries: 3
     restart: unless-stopped
 
+  # CPU-only version of Gemma (slower but works without GPU)
+  gemma-cpu:
+    image: ollama/ollama:latest
+    ports:
+      - "11435:11435"
+    volumes:
+      - gemma_models:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_MODELS=gemma
+    entrypoint: [ "bash", "-c" ]
+    command: >
+      bash -c "
+        ollama serve &
+        sleep 10 &&
+        ollama pull gemma2:2b &&
+        wait
+      "
+    #restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+
 volumes:
   postgres_data:
   redis_data:
+  gemma_models:
