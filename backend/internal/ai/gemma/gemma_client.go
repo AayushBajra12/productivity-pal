@@ -41,7 +41,7 @@ func (c *GemmaClient) CallGemma(prompt string) error {
 	if err != nil {
 		return fmt.Errorf("unable to marshall request body: %w", err)
 	}
-
+	log.Println(string(reqBody))
 	resp, err := c.HttpClient.Post(c.BaseURL+"/api/generate", "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return fmt.Errorf("error while calling gemma API: %w", err)

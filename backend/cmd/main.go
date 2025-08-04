@@ -39,7 +39,7 @@ func main() {
 func NewGemmaClient() *gemma.GemmaClient {
 	baseURL := os.Getenv("GEMMA_BASE_URL")
 	if baseURL == "" {
-		baseURL = "http://localhost:11435"
+		baseURL = "http://localhost:11434"
 	}
 	return &gemma.GemmaClient{
 		BaseURL: baseURL,

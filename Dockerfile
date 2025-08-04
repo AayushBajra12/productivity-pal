@@ -18,4 +18,5 @@ COPY --from=builder /app/certs ./certs
 COPY backend/.env ./.env
 
 EXPOSE 8443
+
 CMD [ "./server" ]

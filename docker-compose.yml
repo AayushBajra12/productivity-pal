@@ -57,22 +57,21 @@ services:
   gemma-cpu:
     image: ollama/ollama:latest
     ports:
-      - "11435:11435"
+      - "11434:11434"
     volumes:
       - gemma_models:/root/.ollama
     environment:
       - OLLAMA_HOST=0.0.0.0
       - OLLAMA_ORIGINS=*
       - OLLAMA_MODELS=gemma
-    entrypoint: [ "bash", "-c" ]
+    entrypoint: ["bash", "-c"]
     command: >
-      bash -c "
-        ollama serve &
-        sleep 10 &&
-        ollama pull gemma2:2b &&
-        wait
-      "
-    #restart: unless-stopped
+      "ollama serve &
+      SERVER_PID=$!
+      sleep 5 &&
+      ollama pull gemma2:2b &&
+      wait $SERVER_PID"
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:11434/"]
       interval: 30s
