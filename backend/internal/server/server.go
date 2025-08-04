@@ -6,14 +6,19 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"productivity-pal/backend/internal/db"
 	"productivity-pal/backend/internal/handlers"
 )
 
 func StartServer() error {
 
-	svc := &handlers.Svc{}
+	svc := &handlers.Svc{
+		Db: db.DB, // Initialize your database connection here
+	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", svc.UserHandler)
+	mux.HandleFunc("/signup", svc.SignupHandler)
 
 	tlsConfig, err := configureTLS()
 	if err != nil {

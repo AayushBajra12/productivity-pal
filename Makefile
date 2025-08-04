@@ -9,19 +9,19 @@ run:
 	docker-compose up --build
 
 # Delete all containers
-clean-containers:
+rmc:
 	docker rm -f $$(docker ps -aq) || true
 
 # Delete all images
-clean-images:
+rmi:
 	docker rmi -f $$(docker images -q) || true
 
 # Delete all volumes
-clean-volumes:
+rmv:
 	docker volume rm $$(docker volume ls -q) || true
 
 # Prune everything (stopped containers, networks, build cache, etc.)
-prune-all:
+rmp:
 	docker system prune -af --volumes
 
 # Clean all: containers, images, volumes

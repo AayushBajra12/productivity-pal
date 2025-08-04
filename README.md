@@ -41,3 +41,12 @@ Install React Native CLI, Go, Docker
 Set up development databases (PostgreSQL, Redis)
 Configure environment variables
 Set up version control with proper .gitignore
+
+
+TLS client certification for MTLS 
+openssl genrsa -out client.key 2048                                              
+romittajale@Mac certs % openssl req -new -key client.key -out client.csr -subj "/CN=client"              
+romittajale@Mac certs % openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 365
+
+
+# Ollama is not able to pull the AI image from docker command: 

@@ -4,12 +4,13 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"productivity-pal/backend/internal/ai/gemma"
-	"productivity-pal/backend/internal/db"
-	"productivity-pal/backend/internal/server"
 	"time"
 
 	"github.com/joho/godotenv"
+
+	"productivity-pal/backend/internal/ai/gemma"
+	"productivity-pal/backend/internal/db"
+	"productivity-pal/backend/internal/server"
 )
 
 func main() {
@@ -23,12 +24,6 @@ func main() {
 		log.Fatal("Shutting down application, unable to initialize db: ", err)
 	}
 
-	gemmaClient := NewGemmaClient()
-	err = gemmaClient.CallGemma("Hi how are you doing?")
-	if err != nil {
-		log.Printf("error while calling gemma: ", err)
-	}
-
 	err = server.StartServer()
 	if err != nil {
 		log.Fatal("Shutting down application, unable to start the server: ", err)
@@ -39,7 +34,7 @@ func main() {
 func NewGemmaClient() *gemma.GemmaClient {
 	baseURL := os.Getenv("GEMMA_BASE_URL")
 	if baseURL == "" {
-		baseURL = "http://localhost:11435"
+		baseURL = "http://gemma-cpu:11434"
 	}
 	return &gemma.GemmaClient{
 		BaseURL: baseURL,
