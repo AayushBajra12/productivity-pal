@@ -6,7 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"productivity-pal/backend/internal/handlers"
+	"productivity-pal/internal/auth"
+	"productivity-pal/internal/handlers"
 )
 
 func StartServer() error {
@@ -14,6 +15,8 @@ func StartServer() error {
 	svc := &handlers.Svc{}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", svc.UserHandler)
+
+	mux.HandleFunc("/refresh", auth.CorsMiddleware(auth.JwtMiddleware(auth.RefreshTokenHandler)))
 
 	tlsConfig, err := configureTLS()
 	if err != nil {
@@ -56,7 +59,7 @@ func configureTLS() (*tls.Config, error) {
 	return &tls.Config{
 		Certificates: []tls.Certificate{cert},
 		ClientCAs:    caCertPool,
-		ClientAuth:   tls.RequireAndVerifyClientCert,
+		ClientAuth:   tls.NoClientCert,
 		MinVersion:   tls.VersionTLS12,
 	}, nil
 
