@@ -17,6 +17,7 @@ func StartServer() error {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", svc.UserHandler)
+	mux.HandleFunc("/signup", svc.SignupHandler)
 
 	mux.HandleFunc("/refresh", auth.CorsMiddleware(auth.JwtMiddleware(auth.RefreshTokenHandler)))
 
