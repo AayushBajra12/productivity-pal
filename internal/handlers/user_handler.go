@@ -17,7 +17,12 @@ type Svc struct {
 
 func (s *Svc) UserHandler(w http.ResponseWriter, r *http.Request) {
 	msg := "Hello world from my new server!"
-	w.Write([]byte(msg))
+	_, err := w.Write([]byte(msg))
+	if err != nil {
+		http.Error(w, "Failed to write response: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	log.Println("UserHandler executed successfully")
 }
 
 // SignupHandler inserts user, preferences, and health details
@@ -75,5 +80,9 @@ func (s *Svc) SignupHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	log.Println("User signed up successfully:", user.Email)
 	w.WriteHeader(http.StatusCreated)
+	if err := json.NewEncoder(w).Encode(user); err != nil {
+		http.Error(w, "Failed to write response: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 	w.Write([]byte(`{"message": "` + msg + `"}`))
 }

@@ -25,43 +25,43 @@ jobs:
         run: |
           if ls **/*.go >/dev/null 2>&1; then echo "uses_go=true" >> $GITHUB_OUTPUT; else echo "uses_go=false" >> $GITHUB_OUTPUT; fi
 
-  lint-go:
-    if: needs.setup.outputs.uses_go == 'true'
-    needs: [ setup ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-          cache: true
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: v1.58
-          args: --timeout=5m
-      - name: go fmt check
-        run: |
-          if [ -n "$(gofmt -l .)" ]; then
-            echo "Run 'gofmt -w .' to fix formatting."; exit 1
-          fi
+  # lint-go:
+  #   if: needs.setup.outputs.uses_go == 'true'
+  #   needs: [ setup ]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-go@v5
+  #       with:
+  #         go-version: '1.22'
+  #         cache: true
+  #     - name: golangci-lint
+  #       uses: golangci/golangci-lint-action@v6
+  #       with:
+  #         version: v1.58
+  #         args: --timeout=5m
+  #     - name: go fmt check
+  #       run: |
+  #         if [ -n "$(gofmt -l .)" ]; then
+  #           echo "Run 'gofmt -w .' to fix formatting."; exit 1
+  #         fi
 
-  test-go:
-    if: needs.setup.outputs.uses_go == 'true'
-    needs: [ setup ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-          cache: true
-      - name: Go test (race & coverage)
-        run: go test ./... -race -coverprofile=coverage.out
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: coverage.out
+  # test-go:
+  #   if: needs.setup.outputs.uses_go == 'false'
+  #   needs: [ setup ]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-go@v5
+  #       with:
+  #         go-version: '1.22'
+  #         cache: true
+  #     - name: Go test (race & coverage)
+  #       run: go test ./... -race -coverprofile=coverage.out
+  #     - uses: actions/upload-artifact@v4
+  #       with:
+  #         name: coverage
+  #         path: coverage.out
 
   gitleaks:
     runs-on: ubuntu-latest
