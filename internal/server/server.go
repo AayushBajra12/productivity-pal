@@ -6,13 +6,15 @@ import (
 	"log"
 	"net/http"
 	"os"
+
 	"productivity-pal/internal/auth"
 	"productivity-pal/internal/handlers"
 )
 
 func StartServer() error {
 
-	svc := &handlers.Svc{}
+	svc := &handlers.Svc{ // Assuming DB is initialized in handlers package
+	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", svc.UserHandler)
 

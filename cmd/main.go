@@ -4,13 +4,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/joho/godotenv"
 
 	"productivity-pal/internal/ai/gemma"
 	"productivity-pal/internal/db"
 	"productivity-pal/internal/server"
-	"time"
-
-	"github.com/joho/godotenv"
 )
 
 var (
