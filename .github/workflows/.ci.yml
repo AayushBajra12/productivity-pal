@@ -1,0 +1,83 @@
+name: CI — Lint, Test & Security
+
+on:
+  push:
+    branches:
+      - "**"    # all branches
+  pull_request:
+    branches:
+      - "**"
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  setup:
+    name: Detect Go
+    runs-on: ubuntu-latest
+    outputs:
+      uses_go: ${{ steps.detect.outputs.uses_go }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: detect
+        run: |
+          if ls **/*.go >/dev/null 2>&1; then echo "uses_go=true" >> $GITHUB_OUTPUT; else echo "uses_go=false" >> $GITHUB_OUTPUT; fi
+
+  lint-go:
+    if: needs.setup.outputs.uses_go == 'true'
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.58
+          args: --timeout=5m
+      - name: go fmt check
+        run: |
+          if [ -n "$(gofmt -l .)" ]; then
+            echo "Run 'gofmt -w .' to fix formatting."; exit 1
+          fi
+
+  test-go:
+    if: needs.setup.outputs.uses_go == 'true'
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+      - name: Go test (race & coverage)
+        run: go test ./... -race -coverprofile=coverage.out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.out
+
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: zricethezav/gitleaks-action@v2
+        with:
+          args: detect --source . --no-git -v
+
+  trivy-fs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          for
