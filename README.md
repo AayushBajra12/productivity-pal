@@ -41,3 +41,21 @@ Install React Native CLI, Go, Docker
 Set up development databases (PostgreSQL, Redis)
 Configure environment variables
 Set up version control with proper .gitignore
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as App (Frontend)
+    participant B as Backend API
+    participant Auth as Authorization Service
+    participant AI as AI Recommendation Service
+
+    U->>A: Request recommendations
+    A->>B: Send "Get Recommendations" request
+    B->>Auth: Request access token (Authorization)
+    Auth-->>B: Return access token
+    B->>AI: Request top 5 recommendations<br/>(with access token)
+    AI-->>B: Return 5 recommended options
+    B-->>A: Send recommendations to app
+    A-->>U: Display top 5 recommended option
+ 

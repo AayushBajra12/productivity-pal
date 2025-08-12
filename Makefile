@@ -29,3 +29,8 @@ clean-all: clean-containers clean-images clean-volumes
 
 # Hard reset using prune
 reset-docker:
+
+.PHONY: lint
+
+lint:
+	@golangci-lint run ./...
