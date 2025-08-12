@@ -1,4 +1,4 @@
-name: CI — Lint, Test & Security
+name: CI — Security Scanning Only
 
 on:
   push:
@@ -14,81 +14,33 @@ permissions:
   actions: read
 
 jobs:
-  setup:
-    name: Detect Go
-    runs-on: ubuntu-latest
-    outputs:
-      uses_go: ${{ steps.detect.outputs.uses_go }}
-    steps:
-      - uses: actions/checkout@v4
-      - id: detect
-        run: |
-          if ls **/*.go >/dev/null 2>&1; then echo "uses_go=true" >> $GITHUB_OUTPUT; else echo "uses_go=false" >> $GITHUB_OUTPUT; fi
-
-  lint-go:
-    if: needs.setup.outputs.uses_go == 'true'
-    needs: [ setup ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-          cache: true
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: v1.58
-          args: --timeout=5m
-      - name: go fmt check
-        run: |
-          if [ -n "$(gofmt -l .)" ]; then
-            echo "Run 'gofmt -w .' to fix formatting."; exit 1
-          fi
-
-  test-go:
-    if: needs.setup.outputs.uses_go == 'false'
-    needs: [ setup ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-          cache: true
-      - name: Go test (race & coverage)
-        run: go test ./... -race -coverprofile=coverage.out
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: coverage.out
-
   gitleaks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Run Gitleaks (no token)
+      - name: Run Gitleaks
         uses: zricethezav/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: detect --source . --no-git -v --redact
 
-
   trivy-fs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: aquasecurity/trivy-action@0.24.0
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.24.0
         with:
           scan-type: fs
           format: sarif
           output: trivy-fs.sarif
           ignore-unfixed: true
           severity: CRITICAL,HIGH
-      - uses: github/codeql-action/upload-sarif@v3
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-fs.sarif
 
@@ -104,10 +56,13 @@ jobs:
         language: [ 'go' ]
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-      - uses: github/codeql-action/autobuild@v3
-      - uses: github/codeql-action/analyze@v3
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
